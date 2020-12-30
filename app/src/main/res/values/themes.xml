@@ -1,0 +1,16 @@
+<resources>
+
+    <style name="Theme.Player" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:windowBackground">@color/black</item>
+    </style>
+
+    <style name="ExoStyledControls.Button.Center">
+        <item name="android:layout_width">80dp</item>
+        <item name="android:layout_height">80dp</item>
+    </style>
+
+    <color name="black">#000000</color>
+</resources>

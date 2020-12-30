@@ -1,0 +1,42 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        app:title="@string/Settings"
+        >
+
+        <EditTextPreference
+            android:icon="@drawable/buffer_size"
+            android:inputType="numberDecimal"
+            android:key="@string/buffer_size"
+            android:title="Buffer Size"
+            />
+        <EditTextPreference
+            android:key="@string/streaming_speed"
+            android:title="Streaming Speed"
+            android:inputType="numberDecimal"
+            android:persistent="false"
+            android:icon="@drawable/streaming_speed"
+            />
+        <EditTextPreference
+            android:key="@string/seeding_speed"
+            android:title="Seeding Speed"
+            android:inputType="numberDecimal"
+            android:persistent="false"
+            android:icon="@drawable/seeding_speed"
+            />
+        <EditTextPreference
+            android:key="@string/port_number"
+            android:title="Port Number"
+            android:inputType="numberDecimal"
+            android:persistent="false"
+            android:icon="@drawable/port_number"
+            />
+        <SwitchPreference
+            android:key="@string/save_status"
+            android:title="Save File"
+            android:summary="Save File After Streaming"
+            />
+    </PreferenceCategory>
+
+</PreferenceScreen>

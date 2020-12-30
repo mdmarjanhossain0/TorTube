@@ -1,0 +1,3 @@
+include ':mediaPlayer'
+include ':app'
+rootProject.name = "TorTube"

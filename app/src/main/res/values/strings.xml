@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">TorTube</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="buffer_size">buffer_size</string>
+    <string name="Settings">Settings</string>
+    <string name="download_location">download_location</string>
+    <string name="add_link">add_link</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="channel_name">forground_notification</string>
+    <string name="channel_description">startingForgroundService</string>
+    <string name="streaming_speed">streaming_speed</string>
+    <string name="seeding_speed">seeding_speed</string>
+    <string name="port_number">port_number</string>
+    <string name="save_status">save_status</string>
+
+
+    <string name="banner_ad_unit_id">ca-app-pub-9303630018596478/2038459494</string>
+    <string name="clipboard">ClipBoard</string>
+</resources>

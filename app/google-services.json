@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1024625892286",
+    "project_id": "tortube-8d4fd",
+    "storage_bucket": "tortube-8d4fd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1024625892286:android:0af6cccaf6bd61743ff7ef",
+        "android_client_info": {
+          "package_name": "com.victoriya.tortube"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1024625892286-6pdkbn33qp1krlgq42uii81mp3utvt15.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsCMXlVCcGqHX41LzvKqoUEOtr0CYiFaI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1024625892286-6pdkbn33qp1krlgq42uii81mp3utvt15.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

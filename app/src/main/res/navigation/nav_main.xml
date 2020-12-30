@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/mainFragment">
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.victoriya.tortube.ui.main.MainFragment"
+        android:label="MainFragment" >
+        <action
+            android:id="@+id/action_mainFragment_to_inputDialogFragment"
+            app:destination="@id/inputDialogFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_checkingDialogFragment"
+            app:destination="@id/checkingDialogFragment" />
+    </fragment>
+    <dialog
+        android:id="@+id/checkingDialogFragment"
+        android:name="com.victoriya.tortube.ui.main.CheckingDialogFragment"
+        android:label="fragment_dialog"
+        tools:layout="@layout/fragment_dialog" />
+    <dialog
+        android:id="@+id/inputDialogFragment"
+        android:name="com.victoriya.tortube.ui.main.InputDialogFragment"
+        android:label="fragment_input_dialog"
+        tools:layout="@layout/fragment_input_dialog" >
+
+        <action
+            android:id="@+id/action_inputDialogFragment_to_checkingDialogFragment"
+            app:destination="@id/checkingDialogFragment"
+            app:popUpTo="@id/mainFragment" />
+    </dialog>
+    <fragment
+        android:id="@+id/playerFragment"
+        android:name="com.victoriya.tortube.ui.main.PlayerFragment"
+        android:label="fragment_player"
+        tools:layout="@layout/fragment_player">
+        <argument
+            android:name="streamingUrl"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+</navigation>
