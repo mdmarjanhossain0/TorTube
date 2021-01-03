@@ -12,11 +12,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 import com.victoriya.tortube.R;
 import com.victoriya.tortube.database.TorrentTubeDatabase;
-import com.victoriya.tortube.service.ServiceHandler;
+import com.victoriya.tortube.service.StreamingHandler;
 import com.victoriya.tortube.service.StreamingService;
 import com.victoriya.tortube.ui.player.PlayerActivity;
 import com.victoriya.tortube.ui.settings.SettingsActivity;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity{
     private static final String TAG=MainActivity.class.getSimpleName();
     public static final String MAGNET_LINK="magnet_link";
     public static final String START_PLAYER_ACTIVITY="start_player_activity";
+    private static final String ABOUT_DIALOG="about_dialog";
     public String streamingUrl;
 
     @Override
@@ -77,7 +79,9 @@ public class MainActivity extends AppCompatActivity{
                 break;
             }
             case R.id.menu_stop_streaming:{
-                serviceStopper();
+                if(StreamingHandler.getInstance().isServiceActive){
+                    serviceStopper();
+                }
                 break;
             }
             case R.id.menu_clear:{
@@ -89,18 +93,30 @@ public class MainActivity extends AppCompatActivity{
                 }).start();
                 break;
             }
-            case R.id.menu_test:{
-                externalPlayer("http://192.168.43.204:2000/video.mp4");
+            case R.id.menu_play:{
+                if(StreamingHandler.getInstance().isServiceActive){
+                    externalPlayer("http://192.168.43.204:2000/video.mp4");
+                }
+                else {
+                    Toast.makeText(this,"Video Not Available...",Toast.LENGTH_SHORT).show();
+                }
+                break;
+            }
+            case R.id.menu_about:{
+                showAboutDialog();
                 break;
             }
         }
         return false;
     }
 
+    private void showAboutDialog() {
+        AboutFragment.newInstance("","")
+                .show(getSupportFragmentManager(),ABOUT_DIALOG);
+    }
+
 
     public void serviceStarter(String magnetLink){
-
-        ServiceHandler serviceHandler=ServiceHandler.getInstance(this);
 
         Log.d(TAG,"mainactivity service start");
         Intent intent=new Intent(this,StreamingService.class);
@@ -113,6 +129,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void externalPlayer(String streamingLink){
+
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.parse(streamingLink), "video/*");
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -120,6 +137,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void internalPlayer(String streamingLink){
+
         Intent intent=new Intent(this, PlayerActivity.class);
         intent.putExtra(START_PLAYER_ACTIVITY,streamingLink);
         startActivity(intent);

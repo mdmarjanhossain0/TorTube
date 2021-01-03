@@ -7,34 +7,41 @@
 
         <EditTextPreference
             android:icon="@drawable/buffer_size"
-            android:inputType="numberDecimal"
+            android:inputType="number"
             android:key="@string/buffer_size"
             android:title="Buffer Size"
+            android:defaultValue="1"
+            android:persistent="false"
             />
         <EditTextPreference
             android:key="@string/streaming_speed"
             android:title="Streaming Speed"
-            android:inputType="numberDecimal"
-            android:persistent="false"
+            android:inputType="number"
+            android:defaultValue="0"
             android:icon="@drawable/streaming_speed"
+            android:persistent="false"
             />
         <EditTextPreference
             android:key="@string/seeding_speed"
             android:title="Seeding Speed"
-            android:inputType="numberDecimal"
-            android:persistent="false"
+            android:inputType="number"
+            android:defaultValue="0"
             android:icon="@drawable/seeding_speed"
+            android:persistent="false"
             />
         <EditTextPreference
             android:key="@string/port_number"
             android:title="Port Number"
-            android:inputType="numberDecimal"
-            android:persistent="false"
+            android:inputType="number"
             android:icon="@drawable/port_number"
+            android:defaultValue="2000"
+            android:persistent="false"
             />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:key="@string/save_status"
             android:title="Save File"
+            android:icon="@drawable/ic_save"
+            android:defaultValue="true"
             android:summary="Save File After Streaming"
             />
     </PreferenceCategory>

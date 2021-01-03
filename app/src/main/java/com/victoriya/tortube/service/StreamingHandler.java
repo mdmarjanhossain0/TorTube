@@ -1,6 +1,6 @@
 package com.victoriya.tortube.service;
 
-import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,7 +10,6 @@ import android.os.Environment;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 
 import com.github.se_bastiaan.torrentstream.StreamStatus;
@@ -19,56 +18,55 @@ import com.github.se_bastiaan.torrentstream.TorrentOptions;
 import com.victoriya.tortube.R;
 import com.victoriya.tortube.torrentstreamserver.TorrentServerListener;
 import com.victoriya.tortube.torrentstreamserver.TorrentStreamServer;
-import com.victoriya.tortube.ui.main.MainActivity;
-import com.victoriya.tortube.viewmodel.UpdateShareViewModel;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import static com.victoriya.tortube.ui.main.MainActivity.MAGNET_LINK;
 
-public class ServiceHandler implements TorrentServerListener {
+public class StreamingHandler implements TorrentServerListener {
     private static final String TAG=StreamingService.class.getSimpleName();
 
     private TorrentStreamServer torrentStreamServer;
     private SharedPreferences pref;
-    private Activity activity;
-    private static ServiceHandler instance;
-    private UpdateShareViewModel shareViewModel;
+    private Application application;
+    private static StreamingHandler instance;
+//    private UpdateShareViewModel shareViewModel;
 
 
-    public MutableLiveData<Torrent> torrentFile =new MutableLiveData<>();
-    public MutableLiveData<StreamStatus> progressStatus =new MutableLiveData<>();
-    public MutableLiveData<String> streamingUrl=new MutableLiveData<>();
-    public MutableLiveData<String> state =new MutableLiveData<>();
-    public MutableLiveData<String> error=new MutableLiveData<>();
+    public MutableLiveData<Torrent> torrentFile;
+    public MutableLiveData<StreamStatus> progressStatus;
+    public MutableLiveData<String> streamingUrl;
+    public MutableLiveData<String> state;
+    public MutableLiveData<String> error;
+
+
+    public boolean isServiceActive=false;
 
 
 
-    private ServiceHandler(Activity activity){
-        this.activity=activity;
-        pref=PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
+    private StreamingHandler(Application application){
+        this.application = application;
+        pref=PreferenceManager.getDefaultSharedPreferences(application.getApplicationContext());
         if(torrentStreamServer==null){
             initServer();
         }
-
-
-    torrentFile =new MutableLiveData<>();
-    progressStatus =new MutableLiveData<>();
-    streamingUrl=new MutableLiveData<>();
-    state =new MutableLiveData<>();
-    error=new MutableLiveData<>();
+        torrentFile =new MutableLiveData<>();
+        progressStatus =new MutableLiveData<>();
+        streamingUrl=new MutableLiveData<>();
+        state =new MutableLiveData<>();
+        error=new MutableLiveData<>();
     }
 
 
-    public static ServiceHandler getInstance(Activity activity){
+    public static StreamingHandler getInstance(Application application){
         if(instance==null){
-            instance=new ServiceHandler(activity);
+            instance=new StreamingHandler(application);
         }
         return instance;
     }
 
-    public static ServiceHandler getInstance(){
+    public static StreamingHandler getInstance(){
         return instance;
     }
 
@@ -76,19 +74,23 @@ public class ServiceHandler implements TorrentServerListener {
     public void onHandleIntent(Intent intent) {
         Log.d(TAG,Thread.currentThread().getName().toString());
         if(intent!=null){
-            shareViewModel=new ViewModelProvider((MainActivity)activity).get(UpdateShareViewModel.class);
-            Log.d(TAG,"check"+shareViewModel.hashCode());
+            /*shareViewModel=new ViewModelProvider((MainActivity)activity).get(UpdateShareViewModel.class);
+            Log.d(TAG,"check"+shareViewModel.hashCode());*/
             handleIntent(intent);
         }
     }
 
     private void handleIntent(Intent intent) {
+        isServiceActive=true;
         String magnetLink=intent.getStringExtra(MAGNET_LINK);
         startStreaming(magnetLink);
     }
 
     private void startStreaming(String magnetLink) {
 
+        if(torrentStreamServer==null){
+            initServer();
+        }
         if(torrentStreamServer.isStreaming()){
             torrentStreamServer.stopStream();
             Log.d(TAG,"streaming stop");
@@ -104,23 +106,38 @@ public class ServiceHandler implements TorrentServerListener {
 
     private void initServer() {
 
-        long bufferSize=pref.getLong(activity.getString(R.string.buffer_size),1L);
-        int streamingSpeed=pref.getInt(activity.getString(R.string.streaming_speed),0);
-        int seedingSpeed=pref.getInt(activity.getString(R.string.seeding_speed),0);
-        boolean saveStatus=pref.getBoolean(activity.getString(R.string.save_status),true);
+        long bufferSize=pref.getLong(application.getString(R.string.buffer_size),1L);
+        if(bufferSize > 5){
+            bufferSize=5;
+        }
+
+        int streamingSpeed=pref.getInt(application.getString(R.string.streaming_speed),0);
+        int seedingSpeed=pref.getInt(application.getString(R.string.seeding_speed),0);
+        boolean saveStatus=pref.getBoolean(application.getString(R.string.save_status),true);
+        if(saveStatus){
+            saveStatus=false;
+        }
+        else {
+            saveStatus=true;
+        }
+
+        Log.d(TAG,"Buffer size: "+bufferSize+
+                " Streaming Speed "+streamingSpeed+
+                " Seeding Speed "+seedingSpeed+
+                " Save Status "+saveStatus);
 
 
         TorrentOptions torrentOptions = new TorrentOptions.Builder()
                 .saveLocation(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
-                .removeFilesAfterStop(false)
-                .prepareSize(1L*1024L*1024L)
+                .removeFilesAfterStop(saveStatus)
+                .prepareSize(bufferSize*1024L*1024L)
                 .maxDownloadSpeed(streamingSpeed)
                 .maxUploadSpeed(seedingSpeed)
                 .build();
 
         String ipAddress = "127.0.0.1";
         try {
-            InetAddress inetAddress = getIpAddress(activity.getApplicationContext());
+            InetAddress inetAddress = getIpAddress(application.getApplicationContext());
             if (inetAddress != null) {
                 ipAddress = inetAddress.getHostAddress();
             }
@@ -129,7 +146,8 @@ public class ServiceHandler implements TorrentServerListener {
         }
 
 
-        int portNumber=pref.getInt(activity.getString(R.string.port_number),2000);
+        int portNumber=pref.getInt(application.getString(R.string.port_number),2000);
+        Log.d(TAG,"Port Number "+portNumber);
 
 
         torrentStreamServer = TorrentStreamServer.getInstance();
@@ -165,7 +183,7 @@ public class ServiceHandler implements TorrentServerListener {
 
     @Override
     public void onServerReady(String url) {
-        shareViewModel.setStreamingUrl(url);
+        setStreamingUrl(url);
         Log.d(TAG, "onServerReady: " + url);
         /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         intent.setDataAndType(Uri.parse(url), "video/mp4");
@@ -174,21 +192,23 @@ public class ServiceHandler implements TorrentServerListener {
 
     @Override
     public void onStreamPrepared(Torrent torrent) {
-        shareViewModel.setState("onStreamPrepared");
+        setState("onStreamPrepared");
         Log.d(TAG,"onStreamPrepared"+"-"+String.valueOf(torrent.getPiecesToPrepare()));
     }
 
     @Override
     public void onStreamStarted(Torrent torrent) {
-        shareViewModel.setTorrentFile(torrent);
+        setTorrentFile(torrent);
         Log.d(TAG, "isValid"+String.valueOf(torrent.getTorrentHandle().isValid()));
         Log.d(TAG,"onTorrentStarted"+String.valueOf(torrent.getFileNames())+Thread.currentThread().getName());
     }
 
     @Override
     public void onStreamError(Torrent torrent, Exception e) {
-        shareViewModel.setError(e.getLocalizedMessage());
         e.printStackTrace();
+        setError(e.getLocalizedMessage());
+        e.printStackTrace();
+        cleanHandler();
     }
 
     @Override
@@ -198,7 +218,7 @@ public class ServiceHandler implements TorrentServerListener {
 
     @Override
     public void onStreamProgress(Torrent torrent, StreamStatus status) {
-        shareViewModel.setProgressStatus(status);
+        setProgressStatus(status);
         Log.d(TAG,"progress-"+status.bufferProgress);
     }
 
@@ -212,13 +232,40 @@ public class ServiceHandler implements TorrentServerListener {
     }
 
     public void cleanHandler(){
-        torrentStreamServer.stopTorrentStream();
-        instance=null;
-        shareViewModel.setStreamingUrl(null);
-        shareViewModel.setError(null);
-        shareViewModel.setState(null);
-        shareViewModel.setProgressStatus(null);
-        shareViewModel.setTorrentFile(null);
+        torrentStreamServer.stopStream();
+//        instance=null;
+        setStreamingUrl(null);
+        setError(null);
+        setState(null);
+        setProgressStatus(null);
+        setTorrentFile(null);
+        isServiceActive=false;
         Log.d(TAG,"clearAll");
+    }
+
+
+
+    public void setTorrentFile(Torrent torrentFile) {
+        this.torrentFile.setValue(torrentFile);
+    }
+
+
+    public void setProgressStatus(StreamStatus progressStatus) {
+        this.progressStatus.setValue(progressStatus);
+    }
+
+
+    public void setStreamingUrl(String streamingUrl) {
+        this.streamingUrl.setValue(streamingUrl);
+    }
+
+
+    public void setState(String state) {
+        this.state.setValue(state);
+    }
+
+
+    public void setError(String error) {
+        this.error.setValue(error);
     }
 }

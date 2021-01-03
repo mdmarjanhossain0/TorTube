@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="#FFFFFF">
 
-    <com.google.android.exoplayer2.ui.PlayerView
+    <!--<com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/exoplayerView"
         android:layout_width="match_parent"
         android:layout_height="271dp"
@@ -19,7 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/exoplayerView" />
+        app:layout_constraintTop_toBottomOf="@+id/exoplayerView" />-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

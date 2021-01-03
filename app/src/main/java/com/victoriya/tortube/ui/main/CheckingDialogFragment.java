@@ -23,8 +23,7 @@ import com.github.se_bastiaan.torrentstream.Torrent;
 import com.victoriya.tortube.R;
 import com.victoriya.tortube.database.TorrentTubeDatabase;
 import com.victoriya.tortube.model.Files;
-import com.victoriya.tortube.service.ServiceHandler;
-import com.victoriya.tortube.viewmodel.LinkShareViewModel;
+import com.victoriya.tortube.service.StreamingHandler;
 import com.victoriya.tortube.viewmodel.UpdateShareViewModel;
 
 import java.util.Calendar;
@@ -35,15 +34,16 @@ public class CheckingDialogFragment extends DialogFragment {
 
     private static final String TAG=CheckingDialogFragment.class.getSimpleName();
 
-    private LinkShareViewModel shareViewModel;
+//    private LinkShareViewModel shareViewModel;
     private UpdateShareViewModel updateShareViewModel;
 
     private View view;
     private ProgressBar waitingProgressBar,progressBar;
     private TextView fileSize, downloadSpeed;
+    AlertDialog.Builder alertDialog;
 
 
-    private ServiceHandler serviceHandler;
+    private StreamingHandler streamingHandler;
     private TorrentTubeDatabase database;
     private String magnet;
 
@@ -51,7 +51,7 @@ public class CheckingDialogFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        serviceHandler=ServiceHandler.getInstance();
+        streamingHandler = StreamingHandler.getInstance();
 //        shareViewModel=new ViewModelProvider(getActivity()).get(LinkShareViewModel.class);
         updateShareViewModel=new ViewModelProvider((MainActivity)getActivity()).get(UpdateShareViewModel.class);
         Log.d(TAG,"check viewmodel object"+updateShareViewModel.hashCode());
@@ -62,8 +62,9 @@ public class CheckingDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
-        AlertDialog.Builder alertDialog=new AlertDialog.Builder(getContext());
         View view=getActivity().getLayoutInflater().inflate(R.layout.fragment_dialog,null);
+
+        alertDialog=new AlertDialog.Builder(getContext());
         this.view=view;
         initView();
         subscribeObserver();
@@ -78,7 +79,9 @@ public class CheckingDialogFragment extends DialogFragment {
                         updateShareViewModel.getTorrentFile().removeObservers(getActivity());
                         dismiss();
                     }
-                }).setCancelable(false);
+                })
+                .setNegativeButtonIcon(getContext().getDrawable(R.drawable.ic_close))
+                .setCancelable(false);
 
         AlertDialog create = alertDialog.create();
         create.setCanceledOnTouchOutside(false);
@@ -139,7 +142,7 @@ public class CheckingDialogFragment extends DialogFragment {
 
                     String makeMagnetUri = torrent.getTorrentHandle().torrentFile().makeMagnetUri();
                     Log.d(TAG,makeMagnetUri.toString());
-                    String fileName=torrent.getFileNames()[0];
+                    String fileName=torrent.getVideoFile().getName();
                     Long videoFileSize=torrent.getTorrentHandle().torrentFile().totalSize();
 
                     insertDatabase(fileName,makeMagnetUri,videoFileSize);
@@ -154,10 +157,12 @@ public class CheckingDialogFragment extends DialogFragment {
         updateShareViewModel.getError().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String error) {
+
                 if(error!=null){
+
                     updateShareViewModel.setError(null);
                     ((MainActivity)getActivity()).serviceStopper();
-                    Toast.makeText(getContext(),"!Error..."+error,Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(),"!Error..."+error+" | Network Problem",Toast.LENGTH_SHORT).show();
                     Log.d(TAG,"observe "+error.toString());
                     dismiss();
                 }
@@ -169,7 +174,6 @@ public class CheckingDialogFragment extends DialogFragment {
             public void onChanged(String url) {
                 if(url!=null){
 
-                    Log.d(TAG,"observe "+url.toString());
                     ((MainActivity)getActivity()).externalPlayer(url);
                 }
             }
@@ -191,4 +195,10 @@ public class CheckingDialogFragment extends DialogFragment {
         return calendar.getTime();
     }
 
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG,"Checking Dialog destroy");
+        super.onDestroy();
+    }
 }

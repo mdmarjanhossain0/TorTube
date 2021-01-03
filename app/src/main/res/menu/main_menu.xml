@@ -16,7 +16,11 @@
         android:title="Clear"
         />
     <item
-        android:id="@+id/menu_test"
-        android:title="Test"
+        android:id="@+id/menu_play"
+        android:title="Play"
+        />
+    <item
+        android:id="@+id/menu_about"
+        android:title="About"
         />
 </menu>

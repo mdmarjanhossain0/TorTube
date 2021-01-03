@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TorTube</string>
+    <string name="app_name">TorrentTube</string>
     <string name="title_activity_settings">SettingsActivity</string>
 
     <!-- Preference Titles -->
@@ -32,4 +32,20 @@
 
     <string name="banner_ad_unit_id">ca-app-pub-9303630018596478/2038459494</string>
     <string name="clipboard">ClipBoard</string>
+
+
+    <string name="about_title">About LibreTorrent</string>
+    <string name="about_description">
+        "Streaming torrent video or audio from network by magnet link just add torrent magnet or share magnet link start streaming\n"
+                "\n"
+                "• Streaming torrent videos or audio without downloading.\n"
+                "• Directly watch video from network.\n"
+                "• Seek bar support added for videos. \n"
+                "• No need to wait for download completion.\n"
+                "• Adjust download and upload speed.\n"
+                "• Check stream status on notification.\n"
+                " • Play videos with player of your choice.\n"
+                " • Option to delete files after streaming.\n"
+                " • Pause torrent streaming."
+    </string>
 </resources>

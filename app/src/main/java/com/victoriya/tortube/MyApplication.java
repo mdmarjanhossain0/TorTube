@@ -5,6 +5,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 
+import com.victoriya.tortube.service.StreamingHandler;
+
 public class MyApplication extends Application{
 
 
@@ -13,7 +15,13 @@ public class MyApplication extends Application{
     @Override
     public void onCreate() {
         super.onCreate();
+
+        serviceHandlerInit(this);
         createNotificationChannel();
+    }
+
+    private void serviceHandlerInit(MyApplication application) {
+        StreamingHandler.getInstance(application);
     }
 
     private void createNotificationChannel() {

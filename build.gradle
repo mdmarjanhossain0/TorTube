@@ -21,6 +21,10 @@ allprojects {
         google()
         jcenter()
         maven{url"http://jitpack.io"}
+
+        maven {
+            url  "https://dl.bintray.com/takisoft/android"
+        }
     }
 }
 

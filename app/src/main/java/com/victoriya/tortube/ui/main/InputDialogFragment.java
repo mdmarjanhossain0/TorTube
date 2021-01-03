@@ -7,7 +7,6 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -16,8 +15,6 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.victoriya.tortube.R;
-import com.victoriya.tortube.service.ServiceHandler;
-import com.victoriya.tortube.viewmodel.LinkShareViewModel;
 
 public class InputDialogFragment extends DialogFragment {
 
@@ -26,13 +23,13 @@ public class InputDialogFragment extends DialogFragment {
 
 //    private LinkShareViewModel shareViewModel;
     private EditText addMagnetLink;
-//    private ServiceHandler serviceHandler;
+//    private StreamingHandler serviceHandler;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        serviceHandler= ServiceHandler.getInstance((MainActivity)getActivity());
+//        serviceHandler= StreamingHandler.getInstance((MainActivity)getActivity());
     }
 
     @Override
@@ -50,7 +47,7 @@ public class InputDialogFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        if(addMagnetLink.getText()!=null){
+                        if(addMagnetLink.getText().length()>3){
 
                             String stringLink=addMagnetLink.getText().toString().trim();
                             ((MainActivity)getActivity()).serviceStarter(stringLink);
