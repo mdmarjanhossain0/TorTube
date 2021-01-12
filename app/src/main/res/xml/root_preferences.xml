@@ -3,6 +3,7 @@
 
     <PreferenceCategory
         app:title="@string/Settings"
+        android:icon="@drawable/ic_settings_preference"
         >
 
         <EditTextPreference
@@ -12,6 +13,7 @@
             android:title="Buffer Size"
             android:defaultValue="1"
             android:persistent="false"
+            app:allowDividerAbove="true"
             />
         <EditTextPreference
             android:key="@string/streaming_speed"
@@ -20,6 +22,8 @@
             android:defaultValue="0"
             android:icon="@drawable/streaming_speed"
             android:persistent="false"
+            app:allowDividerBelow="true"
+            app:allowDividerAbove="true"
             />
         <EditTextPreference
             android:key="@string/seeding_speed"
@@ -28,6 +32,8 @@
             android:defaultValue="0"
             android:icon="@drawable/seeding_speed"
             android:persistent="false"
+            app:allowDividerBelow="true"
+            app:allowDividerAbove="true"
             />
         <EditTextPreference
             android:key="@string/port_number"
@@ -36,6 +42,8 @@
             android:icon="@drawable/port_number"
             android:defaultValue="2000"
             android:persistent="false"
+            app:allowDividerBelow="true"
+            app:allowDividerAbove="true"
             />
         <SwitchPreferenceCompat
             android:key="@string/save_status"
@@ -43,6 +51,7 @@
             android:icon="@drawable/ic_save"
             android:defaultValue="true"
             android:summary="Save File After Streaming"
+            app:allowDividerAbove="true"
             />
     </PreferenceCategory>
 

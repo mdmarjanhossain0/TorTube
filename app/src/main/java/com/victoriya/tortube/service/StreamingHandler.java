@@ -14,8 +14,8 @@ import androidx.preference.PreferenceManager;
 
 import com.github.se_bastiaan.torrentstream.StreamStatus;
 import com.github.se_bastiaan.torrentstream.Torrent;
-import com.github.se_bastiaan.torrentstream.TorrentOptions;
 import com.victoriya.tortube.R;
+import com.victoriya.tortube.torrentstreamserver.TorrentOptions;
 import com.victoriya.tortube.torrentstreamserver.TorrentServerListener;
 import com.victoriya.tortube.torrentstreamserver.TorrentStreamServer;
 
@@ -26,6 +26,7 @@ import static com.victoriya.tortube.ui.main.MainActivity.MAGNET_LINK;
 
 public class StreamingHandler implements TorrentServerListener {
     private static final String TAG=StreamingService.class.getSimpleName();
+    public static final String ON_STREAM_PREPARED="onStreamPrepared";
 
     private TorrentStreamServer torrentStreamServer;
     private SharedPreferences pref;
@@ -97,6 +98,7 @@ public class StreamingHandler implements TorrentServerListener {
         }
         try {
             Log.d(TAG,magnetLink.toString());
+            torrentStreamServer.setContext(application);
             torrentStreamServer.startStream(magnetLink);
             Log.d(TAG,"startStreaming");
         } catch (Exception e) {
@@ -133,6 +135,7 @@ public class StreamingHandler implements TorrentServerListener {
                 .prepareSize(bufferSize*1024L*1024L)
                 .maxDownloadSpeed(streamingSpeed)
                 .maxUploadSpeed(seedingSpeed)
+                .autoDownload(false)
                 .build();
 
         String ipAddress = "127.0.0.1";
@@ -192,13 +195,17 @@ public class StreamingHandler implements TorrentServerListener {
 
     @Override
     public void onStreamPrepared(Torrent torrent) {
-        setState("onStreamPrepared");
+        setState(ON_STREAM_PREPARED);
+
+
+        setTorrentFile(torrent);
+
         Log.d(TAG,"onStreamPrepared"+"-"+String.valueOf(torrent.getPiecesToPrepare()));
     }
 
     @Override
     public void onStreamStarted(Torrent torrent) {
-        setTorrentFile(torrent);
+//        setTorrentFile(torrent);
         Log.d(TAG, "isValid"+String.valueOf(torrent.getTorrentHandle().isValid()));
         Log.d(TAG,"onTorrentStarted"+String.valueOf(torrent.getFileNames())+Thread.currentThread().getName());
     }

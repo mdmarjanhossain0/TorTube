@@ -1,6 +1,9 @@
 package com.victoriya.tortube.ui.main;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -23,7 +26,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 
-import com.google.ads.mediation.AbstractAdViewAdapter;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -34,22 +36,23 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.victoriya.tortube.Adapter.TorrentAdapter;
 import com.victoriya.tortube.R;
 import com.victoriya.tortube.model.Files;
-import com.victoriya.tortube.viewmodel.LinkShareViewModel;
 import com.victoriya.tortube.viewmodel.MainViewModel;
 
-import java.sql.Struct;
 import java.util.List;
 
 public class MainFragment extends Fragment {
 
     private static final String TAG=MainFragment.class.getSimpleName();
+    private static final int PICK_TORRENT_FILE=2;
 
     private Animation rotateOpen;
     private Animation rotateClose;
-    private Animation fromBottom;
-    private Animation toBottom;
+    private Animation fromBottomEdit;
+    private Animation fromBottomAddTorrent;
+    private Animation toBottomEdit;
+    private Animation toBottomAddTorrent;
 
-    private FloatingActionButton add,edit;
+    private FloatingActionButton fabAdd, fabEdit,fabAddTorrent;
     private RecyclerView mainRecyclerView;
     private AdView mAdView;
 
@@ -66,8 +69,10 @@ public class MainFragment extends Fragment {
 
         rotateOpen= AnimationUtils.loadAnimation(getContext(), R.anim.rotate_open_anim);
         rotateClose= AnimationUtils.loadAnimation(getContext(),R.anim.rotate_close_anim);
-        fromBottom=AnimationUtils.loadAnimation(getContext(),R.anim.from_bottom);
-        toBottom=AnimationUtils.loadAnimation(getContext(),R.anim.to_bottom);
+        fromBottomEdit =AnimationUtils.loadAnimation(getContext(),R.anim.from_bottom_edit);
+        fromBottomAddTorrent=AnimationUtils.loadAnimation(getContext(),R.anim.from_bottom_add_torrent);
+        toBottomEdit =AnimationUtils.loadAnimation(getContext(),R.anim.to_bottom_edit);
+        toBottomAddTorrent =AnimationUtils.loadAnimation(getContext(),R.anim.to_bottom_add_torrent);
 
         mainViewModel=new ViewModelProvider(getActivity()).get(MainViewModel.class);
 //        shareViewModel=new ViewModelProvider(getActivity()).get(LinkShareViewModel.class);
@@ -81,8 +86,9 @@ public class MainFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        add=view.findViewById(R.id.bnt_add);
-        edit=view.findViewById(R.id.bnt_edit);
+        fabAdd =view.findViewById(R.id.bnt_add);
+        fabEdit =view.findViewById(R.id.bnt_edit);
+        fabAddTorrent=view.findViewById(R.id.bnt_add_torrent);
         mainRecyclerView=view.findViewById(R.id.main_recycler);
         return view;
     }
@@ -105,11 +111,17 @@ public class MainFragment extends Fragment {
     }
 
     private void setListener() {
-        add.setOnClickListener(v -> {
+
+        fabAdd.setOnClickListener(v -> {
             onAddEvent();
         });
-        edit.setOnClickListener(v->{
+
+        fabEdit.setOnClickListener(v->{
             onEditEvent();
+        });
+
+        fabAddTorrent.setOnClickListener(view -> {
+            onAddTorrentEvent();
         });
     }
 
@@ -163,14 +175,20 @@ public class MainFragment extends Fragment {
     private void checkIntent() {
 
         if(((MainActivity)getActivity()).streamingUrl!=null){
-            navigateCheckingFragment();
+            navigateCheckingFragment(null);
         }
     }
 
-    private void navigateCheckingFragment() {
+    private void navigateCheckingFragment(String url) {
 
 //        shareViewModel.setMagnetLink(((MainActivity)getActivity()).streamingUrl);
-        startStreamingEvent(((MainActivity)getActivity()).streamingUrl);
+
+        if(url==null){
+            startStreamingEvent(((MainActivity)getActivity()).streamingUrl);
+        }
+        else {
+            startStreamingEvent(url);
+        }
 
         NavDirections navDirections= MainFragmentDirections.actionMainFragmentToCheckingDialogFragment();
         Navigation.findNavController(getActivity(),R.id.nav_host_fragment).navigate(navDirections);
@@ -224,38 +242,58 @@ public class MainFragment extends Fragment {
     }
 
     private void onAddEvent() {
+
         setVisibility(clicked);
-        setAnimation(clicked);
+//        setAnimation(clicked);
         clicked=!clicked;
     }
 
     private void onEditEvent() {
+
         NavDirections action = MainFragmentDirections.actionMainFragmentToInputDialogFragment();
         Navigation
                 .findNavController(getActivity(),R.id.nav_host_fragment)
                 .navigate(action);
     }
 
+    private void onAddTorrentEvent() {
+
+        Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+        chooseFile.addCategory(Intent.CATEGORY_OPENABLE);
+        chooseFile.setType("application/x-bittorrent");
+        startActivityForResult(
+                Intent.createChooser(chooseFile, "Choose a file"),
+                PICK_TORRENT_FILE
+        );
+    }
+
 
     private void setAnimation(Boolean clicked) {
 
         if(!clicked){
-            add.startAnimation(rotateOpen);
-            edit.startAnimation(fromBottom);
+            fabAdd.startAnimation(rotateOpen);
+            fabEdit.startAnimation(fromBottomEdit);
+            fabAddTorrent.startAnimation(fromBottomAddTorrent);
         }
         else{
-            add.startAnimation(rotateClose);
-            edit.startAnimation(toBottom);
+            fabAdd.startAnimation(rotateClose);
+            fabEdit.startAnimation(toBottomEdit);
+            fabAddTorrent.startAnimation(toBottomAddTorrent);
         }
     }
 
     @SuppressLint("RestrictedApi")
     private void setVisibility(Boolean clicked) {
+
         if(!clicked){
-            edit.setVisibility(View.VISIBLE);
+            fabEdit.setVisibility(View.VISIBLE);
+            fabAddTorrent.setVisibility(View.VISIBLE);
+            setAnimation(clicked);
         }
         else{
-            edit.setVisibility(View.INVISIBLE);
+            setAnimation(clicked);
+            fabEdit.setVisibility(View.INVISIBLE);
+            fabAddTorrent.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -271,4 +309,18 @@ public class MainFragment extends Fragment {
         ((MainActivity)getActivity()).serviceStarter(magnetLink);
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+        if(requestCode==PICK_TORRENT_FILE && resultCode== Activity.RESULT_OK){
+
+            Uri uri=data.getData();
+            if(uri!=null){
+                navigateCheckingFragment(uri.toString());
+            }
+        }
+    }
 }

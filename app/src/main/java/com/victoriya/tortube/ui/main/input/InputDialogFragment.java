@@ -1,20 +1,27 @@
-package com.victoriya.tortube.ui.main;
+package com.victoriya.tortube.ui.main.input;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.victoriya.tortube.R;
+//import com.victoriya.tortube.ui.main.InputDialogFragmentDirections;
+import com.victoriya.tortube.ui.main.MainActivity;
 
 public class InputDialogFragment extends DialogFragment {
 
@@ -41,8 +48,30 @@ public class InputDialogFragment extends DialogFragment {
         AlertDialog.Builder alertDialog=new AlertDialog.Builder(getContext());
         addMagnetLink = view.findViewById(R.id.link);
 
+
+        LinearLayout titleLinearLayout = new LinearLayout(getContext());
+
+        titleLinearLayout.setLayoutParams(
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        titleLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+
+        TextView title = new TextView(getContext());
+        title.setText("Add Magnet Link");
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
+        title.setTypeface(null, Typeface.BOLD);
+        title.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+        title.setPadding(40, 40, 40, 40);
+
+        titleLinearLayout.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.accent_cyan));
+        titleLinearLayout.addView(title);
+        titleLinearLayout.setGravity(LinearLayout.TEXT_ALIGNMENT_CENTER);
+
+
+        alertDialog.setCustomTitle(titleLinearLayout);
+
         alertDialog.setView(view)
-                .setTitle("Add Magnet Link")
+//                .setTitle("Add Magnet Link")
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

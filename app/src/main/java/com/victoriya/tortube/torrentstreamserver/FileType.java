@@ -1,7 +1,7 @@
 package com.victoriya.tortube.torrentstreamserver;
 
 
-import com.github.se_bastiaan.torrentstreamserver.nanohttpd.NanoHTTPD;
+import com.victoriya.tortube.torrentstreamserver.nanohttpd.NanoHTTPD;
 
 public class FileType {
 

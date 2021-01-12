@@ -36,10 +36,11 @@
 
     <string name="about_title">About LibreTorrent</string>
     <string name="about_description">
-        "Streaming torrent video or audio from network by magnet link just add torrent magnet or share magnet link start streaming\n"
+        "Streaming torrent video or audio from network by magnet or .torrent just add or share start streaming\n"
                 "\n"
                 "• Streaming torrent videos or audio without downloading.\n"
                 "• Directly watch video from network.\n"
+                "• Start streaming specific file form a torrent.\n"
                 "• Seek bar support added for videos. \n"
                 "• No need to wait for download completion.\n"
                 "• Adjust download and upload speed.\n"
@@ -48,4 +49,5 @@
                 " • Option to delete files after streaming.\n"
                 " • Pause torrent streaming."
     </string>
+    <string name="select_a_font">Checking Torrent...</string>
 </resources>

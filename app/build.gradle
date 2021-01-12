@@ -10,18 +10,13 @@ android {
         applicationId "com.victoriya.tortube"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 1.0
+        versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
-        debug {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -52,7 +47,9 @@ dependencies {
 
     //The app base on this library........Update version available but i use a long time
     //and test this version.....
-    implementation "com.github.TorrentStream:TorrentStreamServer-Android:1.0.6"
+//    implementation "com.github.TorrentStream:TorrentStreamServer-Android:1.0.6"
+
+    implementation "com.github.TorrentStream:TorrentStream-Android:2.7.0"
 
     /*implementation "com.karumi:dexter:6.2.1"
     implementation "com.leinardi.android:speed-dial:3.1.1"*/

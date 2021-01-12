@@ -1,9 +1,10 @@
 package com.victoriya.tortube.torrentstreamserver;
 
+import android.content.Context;
+import android.util.Log;
+
 import com.github.se_bastiaan.torrentstream.StreamStatus;
 import com.github.se_bastiaan.torrentstream.Torrent;
-import com.github.se_bastiaan.torrentstream.TorrentOptions;
-import com.github.se_bastiaan.torrentstream.TorrentStream;
 import com.github.se_bastiaan.torrentstream.listeners.TorrentListener;
 
 import java.io.File;
@@ -132,6 +133,7 @@ public class TorrentStreamServer {
      * @param torrentUrl {@link String} .torrent or magnet link
      */
     public void startStream(String torrentUrl) throws IOException, TorrentStreamNotInitializedException {
+        Log.d("TorrentStreamServer",torrentUrl.toString());
         startStream(torrentUrl, null, null);
     }
 
@@ -185,6 +187,10 @@ public class TorrentStreamServer {
         if (this.torrentStream != null && this.torrentStream.isStreaming()) {
             this.torrentStream.stopStream();
         }
+    }
+
+    public void setContext(Context context) {
+        torrentStream.setContext(context);
     }
 
     private class InternalTorrentServerListener implements TorrentServerListener {

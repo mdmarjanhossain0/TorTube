@@ -1,19 +1,20 @@
-package com.victoriya.tortube.ui.main;
+package com.victoriya.tortube.ui.main.about;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
-import android.view.LayoutInflater;
+import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.victoriya.tortube.R;
@@ -43,6 +44,10 @@ public class AboutFragment extends DialogFragment {
         setVersion(view.findViewById(R.id.about_version));
         setDescription(view.findViewById(R.id.about_description));
 
+
+        LinearLayout dialogTitle = customDialogTitle();
+        alertDialog.setCustomTitle(dialogTitle);
+
         alertDialog.setView(view)
                 .setTitle("About TorrentTube")
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
@@ -55,6 +60,29 @@ public class AboutFragment extends DialogFragment {
         AlertDialog create = alertDialog.create();
         create.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         return create;
+    }
+
+
+    private LinearLayout customDialogTitle() {
+        LinearLayout titleLinearLayout = new LinearLayout(getContext());
+
+        titleLinearLayout.setLayoutParams(
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, 31));
+        titleLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+
+        TextView title = new TextView(getContext());
+        title.setText("About TorrentTube");
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        title.setTypeface(null, Typeface.BOLD);
+        title.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+        title.setPadding(40, 40, 40, 40);
+        title.setGravity(3);
+
+        titleLinearLayout.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.accent_cyan));
+        titleLinearLayout.addView(title);
+        titleLinearLayout.setGravity(LinearLayout.TEXT_ALIGNMENT_CENTER);
+        return titleLinearLayout;
     }
 
     @Override

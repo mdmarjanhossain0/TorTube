@@ -3,9 +3,12 @@ package com.victoriya.tortube.ui.main;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,6 +22,7 @@ import com.victoriya.tortube.R;
 import com.victoriya.tortube.database.TorrentTubeDatabase;
 import com.victoriya.tortube.service.StreamingHandler;
 import com.victoriya.tortube.service.StreamingService;
+import com.victoriya.tortube.ui.main.about.AboutFragment;
 import com.victoriya.tortube.ui.player.PlayerActivity;
 import com.victoriya.tortube.ui.settings.SettingsActivity;
 
@@ -32,11 +36,15 @@ public class MainActivity extends AppCompatActivity{
     public static final String START_PLAYER_ACTIVITY="start_player_activity";
     private static final String ABOUT_DIALOG="about_dialog";
     public String streamingUrl;
+    private SharedPreferences pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        pref= PreferenceManager.getDefaultSharedPreferences(this);
+
 
         String action = getIntent().getAction();
         checkAction(action);
@@ -46,10 +54,11 @@ public class MainActivity extends AppCompatActivity{
         Uri data = getIntent().getData();
         if (action != null && action.equals(Intent.ACTION_VIEW) && data != null) {
             try {
-                String streamUrl = URLDecoder.decode(data.toString(), "utf-8");
+//                String streamUrl = URLDecoder.decode(data.toString(), "utf-8");
+                String streamUrl = data.toString();
                 this.streamingUrl=streamUrl;
                 getIntent().setData(null);
-            } catch (UnsupportedEncodingException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -57,8 +66,16 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onStart() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)!=PackageManager.PERMISSION_GRANTED) {
+
+
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE},
+                    0);
         }
         super.onStart();
     }
@@ -95,7 +112,8 @@ public class MainActivity extends AppCompatActivity{
             }
             case R.id.menu_play:{
                 if(StreamingHandler.getInstance().isServiceActive){
-                    externalPlayer("http://192.168.43.204:2000/video.mp4");
+                    externalPlayer("http://192.168.43.204:"+
+                            pref.getInt(getString(R.string.port_number),2000)+"/video.mp4");
                 }
                 else {
                     Toast.makeText(this,"Video Not Available...",Toast.LENGTH_SHORT).show();
@@ -118,7 +136,7 @@ public class MainActivity extends AppCompatActivity{
 
     public void serviceStarter(String magnetLink){
 
-        Log.d(TAG,"mainactivity service start");
+        Log.d(TAG,"MainActivity service starter");
         Intent intent=new Intent(this,StreamingService.class);
         intent.putExtra(MAGNET_LINK,magnetLink);
         startService(intent);

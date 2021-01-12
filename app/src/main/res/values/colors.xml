@@ -6,4 +6,6 @@
     <color name="colorYellow">#FF9800</color>
     <color name="white">#FFFFFF</color>
     <color name="green">#4CAF50</color>
+    <color name="accent_cyan">#00bcd4</color>
+    <color name="md_grey_200">#EEEEEE</color>
 </resources>

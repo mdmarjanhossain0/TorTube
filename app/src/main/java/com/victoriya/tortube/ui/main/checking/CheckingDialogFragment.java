@@ -1,12 +1,15 @@
-package com.victoriya.tortube.ui.main;
+package com.victoriya.tortube.ui.main.checking;
 
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,21 +17,30 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.frostwire.jlibtorrent.FileStorage;
 import com.github.se_bastiaan.torrentstream.StreamStatus;
 import com.github.se_bastiaan.torrentstream.Torrent;
+import com.victoriya.tortube.Adapter.SelectionAdapter;
 import com.victoriya.tortube.R;
 import com.victoriya.tortube.database.TorrentTubeDatabase;
 import com.victoriya.tortube.model.Files;
+import com.victoriya.tortube.model.SelectionFile;
 import com.victoriya.tortube.service.StreamingHandler;
+import com.victoriya.tortube.ui.main.MainActivity;
 import com.victoriya.tortube.viewmodel.UpdateShareViewModel;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 public class CheckingDialogFragment extends DialogFragment {
 
@@ -40,12 +52,17 @@ public class CheckingDialogFragment extends DialogFragment {
     private View view;
     private ProgressBar waitingProgressBar,progressBar;
     private TextView fileSize, downloadSpeed;
-    AlertDialog.Builder alertDialog;
+    private AlertDialog.Builder alertDialog;
+    private RecyclerView recyclerView;
+    private SelectionAdapter adapter;
+    TextView title;
 
 
     private StreamingHandler streamingHandler;
     private TorrentTubeDatabase database;
     private String magnet;
+
+    private Torrent startStreamingTorrent;
 
 
     @Override
@@ -67,10 +84,17 @@ public class CheckingDialogFragment extends DialogFragment {
         alertDialog=new AlertDialog.Builder(getContext());
         this.view=view;
         initView();
+        initRecyclerView();
         subscribeObserver();
 
+
+        LinearLayout titleLinearLayout = customDialogTitle();
+        alertDialog.setCustomTitle(titleLinearLayout);
+
+
+
         alertDialog.setView(view)
-                .setTitle("Checking Magnet Link...")
+//                .setTitle("Checking Magnet Link...")
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -89,11 +113,42 @@ public class CheckingDialogFragment extends DialogFragment {
         return create;
     }
 
+    private LinearLayout customDialogTitle() {
+        LinearLayout titleLinearLayout = new LinearLayout(getContext());
+
+        titleLinearLayout.setLayoutParams(
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, 25));
+        titleLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+
+        title = new TextView(getContext());
+        title.setText(R.string.select_a_font);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        title.setTypeface(null, Typeface.BOLD);
+        title.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+        title.setPadding(40, 40, 40, 40);
+        title.setGravity(3);
+
+        titleLinearLayout.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.accent_cyan));
+        titleLinearLayout.addView(title);
+        titleLinearLayout.setGravity(LinearLayout.TEXT_ALIGNMENT_CENTER);
+        return titleLinearLayout;
+    }
+
+    private void initRecyclerView() {
+        adapter=new SelectionAdapter(this);
+        recyclerView.setAdapter(adapter);
+
+        DividerItemDecoration dividerItemDecoration=new DividerItemDecoration(getContext(), LinearLayout.VERTICAL);
+        recyclerView.addItemDecoration(dividerItemDecoration);
+    }
+
     private void initView() {
         waitingProgressBar=view.findViewById(R.id.waiting_progress);
         progressBar=view.findViewById(R.id.progress_bar);
         fileSize=view.findViewById(R.id.file_size);
         downloadSpeed =view.findViewById(R.id.file_seeding);
+        recyclerView=view.findViewById(R.id.selection_recycler_view);
     }
 
     @Override
@@ -115,6 +170,11 @@ public class CheckingDialogFragment extends DialogFragment {
             @Override
             public void onChanged(String status) {
                 if(status!=null){
+
+
+                    /*if(status.equals(StreamingHandler.ON_STREAM_PREPARED)){
+                        startStreamingTorrent.startDownload();
+                    }*/
                     Log.d(TAG,"observe "+status.toString());
                 }
             }
@@ -129,6 +189,7 @@ public class CheckingDialogFragment extends DialogFragment {
                     waitingProgressBar.setVisibility(View.GONE);
 
                     downloadSpeed.setText("Streaming Speed: "+(streamStatus.downloadSpeed/(1024*1024))+" kiB");
+                    title.setText("Fetching Buffer... "+streamStatus.bufferProgress+"%");
                     Log.d(TAG,"observe "+ streamStatus.toString());
                 }
             }
@@ -140,6 +201,12 @@ public class CheckingDialogFragment extends DialogFragment {
 
                 if(torrent!=null){
 
+
+                    startStreamingTorrent=torrent;
+
+                    title.setText("Select a File For Streaming");
+                    waitingProgressBar.setVisibility(View.GONE);
+
                     String makeMagnetUri = torrent.getTorrentHandle().torrentFile().makeMagnetUri();
                     Log.d(TAG,makeMagnetUri.toString());
                     String fileName=torrent.getVideoFile().getName();
@@ -148,6 +215,16 @@ public class CheckingDialogFragment extends DialogFragment {
                     insertDatabase(fileName,makeMagnetUri,videoFileSize);
                     getDialog().setTitle(fileName.toString());
                     fileSize.setText("File Size: "+videoFileSize/(1024*1024)+" MB");
+
+
+
+                    FileStorage fileStorage=torrent.getTorrentHandle().torrentFile().files();
+                    List<SelectionFile> selectionFiles=new ArrayList<>();
+                    for(int i=0;i<fileStorage.numFiles();i++){
+                        selectionFiles.add(new SelectionFile(fileStorage.fileName(i),fileStorage.fileSize(i)));
+                        Log.d(TAG,fileStorage.fileName(i));
+                    }
+                    adapter.submitList(selectionFiles);
 
                     Log.d(TAG,"observe "+fileName.toString());
                 }
@@ -193,6 +270,14 @@ public class CheckingDialogFragment extends DialogFragment {
         GregorianCalendar calendar=new GregorianCalendar();
         calendar.add(Calendar.MILLISECOND,0);
         return calendar.getTime();
+    }
+
+
+    public void onIndexSelectionEvent(int index){
+        startStreamingTorrent.setSelectedFileIndex(index);
+        startStreamingTorrent.startDownload();
+        waitingProgressBar.setVisibility(View.VISIBLE);
+        title.setText("Please Wait...");
     }
 
 

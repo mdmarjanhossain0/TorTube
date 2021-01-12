@@ -1,4 +1,4 @@
-package com.victoriya.tortube.ui.main;
+package com.victoriya.tortube.ui.player;
 
 //import android.content.Context;
 //import android.net.Uri;
